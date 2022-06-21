@@ -1,0 +1,3 @@
+#!/bin/bash
+source /home/agrineer/.bash_profile
+$POLI_HOME/frame/work.py $POLI_HOME/projects/et_poli
