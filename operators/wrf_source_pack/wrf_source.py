@@ -27,6 +27,7 @@
 
 # create a netCDF wrf data source
 # XLAT and XLONG are automatically read into nav buffers
+# NOTE: 4-D data not implemented, eg. T
 
 wrf_source_copyright = 'wrf_source.py Copyright (c) 2016-2022 Scott L. Williams, released under GNU GPL V3.0'
 
@@ -172,7 +173,8 @@ class wrf_source( op_panel ):          # image source operator
             data = ds.ReadAsArray()[ index ]
 
             # include vertical level, if available
-            self.band_tags.append( self.bufs[i] + ':' + str(self.tbands[i]) + ':' + str(self.lbands[i]) )
+            self.band_tags.append( self.bufs[i] + ':' + str(self.tbands[i]) )
+            #                                   ':' + str(self.lbands[i]) ) # no levels implemented
 
             if i == 0:
                 # save to compare later
@@ -253,14 +255,19 @@ class wrf_source( op_panel ):          # image source operator
         except:
             print( 'cannot get dataset: XLAT', file=sys.stderr )
             return
-        data = ds.ReadAsArray()[0]
 
+        # determine XLAT has multiple buffers (orginal WRF output)
+        # or if just one (filtered WRF output)
+        data = ds.ReadAsArray()
+        if len( data.shape ) == 3:
+            data = data[0]
+            
         numy, numx = data.shape
         dtype = data.dtype
 
-        # we have shape, make nav data buffer
+        # we have shape, dtype make nav data buffer
         self.nav_data = np.empty( (numy,numx,2), dtype=dtype )
-        self.nav_data[:,:,0] = data # load latitude
+        self.nav_data[:,:,0] = data # load latitudes
 
         bufstr = 'NETCDF:"' + self.params.filepath + '":XLONG'
         try:
@@ -268,8 +275,13 @@ class wrf_source( op_panel ):          # image source operator
         except:
             print( 'cannot get dataset: XLONG', file=sys.stderr )
             return
-        data = ds.ReadAsArray()[0]
-
+        
+        # determine XLONG has multiple buffers (orginal WRF output)
+        # or if just one (filtered WRF output). should be same as XLAT
+        data = ds.ReadAsArray()
+        if len( data.shape ) == 3:
+            data = data[0]
+ 
         self.nav_data[:,:,1] = data # load longitudes
         self.nav_tags = ['lat', 'lon']
 

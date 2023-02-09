@@ -35,6 +35,16 @@ from threads import apply_thread
 from threads import monitor_thread
 from threads import EVT_PROCESS_DONE_EVENT
 
+# Reminder: numpy array dimensions are typically indexed Z,Y,X.
+#           this is a natural approach since Z says how many sets (images)
+#           of rows (Y)  and colums (X,  but for bmp,jpg, etc. the convention
+#           is Y,X,Z. numpy arrays can be used as Y,X,Z but is confusing for
+#           numpy users as they expect Z,Y,X. To add further confusion screen
+#           cordinates are X,Y with top left corner as origin (0,0),and the
+#           program "ncview" uses the bottom left corner as the origin.
+#           POLI uses numpy arrays with Y,X,Z index convention only because
+#           it is more congruent with popular image formats. 
+
 # coastwatch hdf satellite attributes
 class attr():   
     def __init__( self ):
@@ -779,6 +789,6 @@ class op_panel( wx.Panel ):
     def report_image( self, image ):        
         height,width,nbands = image.shape
         self.messages.append( '\tnum bands:\t\t' + str(nbands) + '\n' )
-        self.messages.append( '\tdimensions:\t\t' )
+        self.messages.append( '\tdimensions:\t' )
         self.messages.append( str(width) + ' x ' + str(height) + ' pixels\n' )
         self.messages.append( '\tdata type:\t\t' + str(image.dtype) + '\n' )
