@@ -6,7 +6,7 @@
 @brief Write out numpy array as image file. 
 @LICENSE
 #
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 # write out numpy array as image file
 
 # embed copyright in binary
-write_copyright = 'write.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+write_copyright = 'write.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import os
@@ -204,5 +204,7 @@ class FileDrop( wx.FileDropTarget ):
 if __name__ == '__main__':      
     oper = instantiate()           # source point for pipe
     oper.set_params( sys.argv[1:] )
-    oper.run()            
-    oper.sink.dump( sys.stdout )   # send downstream    
+    oper.run()
+
+    # send downstream
+    np.save( sys.stdout,buffer, oper.sink, allow_pickle=False )   

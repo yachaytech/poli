@@ -7,7 +7,7 @@
 @brief Read SOM weights and classify data.
 @LICENSE
 #
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 # read som weights and classify data
 
-somclass_copyright = 'somclass.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+somclass_copyright = 'somclass.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import sys
@@ -254,8 +254,9 @@ if __name__ == '__main__':
     temp.close()
 
     # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
- 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send downstream    
+    oper.run()
+
+    # send downstream
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 

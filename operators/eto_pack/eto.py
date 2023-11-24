@@ -7,7 +7,7 @@
 @brief Calculates standard evaporation (ETo).
 @LICENSE
 #
-#  Copyright (C) 2016-2022 Scott L. Williams.
+#  Copyright (C) 2016-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@
 # calculate standard reference evapotranspiration
 # and attach lat and long buffers
 
-eto_copyright = 'eto.py Copyright (c) 2016-2022 Scott L. Williams ' + \
+eto_copyright = 'eto.py Copyright (c) 2016-2024 Scott L. Williams ' + \
                  'released under GNU GPL V3.0'
 
 import wx
@@ -190,9 +190,10 @@ if __name__ == '__main__':
     temp.write( sys.stdin.buffer.read() )
     temp.close()
 
-    # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    # load the data
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
- 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send downstream    
+    oper.run()
+
+    # send downstream
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 

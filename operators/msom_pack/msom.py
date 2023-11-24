@@ -7,7 +7,7 @@
 @brief Self organizing map POLI operator using Minisom.
 @LICENSE
 #
-#  Copyright (C) 2020-2022 Scott L. Williams.
+#  Copyright (C) 2020-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 '''
-msom_copyright = 'msom.py Copyright (c) 2020-2022 Scott L. Williams, released under GNU GPL V3.0'
+msom_copyright = 'msom.py Copyright (c) 2020-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 # self organizing map poli operator using minisom
 
@@ -66,6 +66,7 @@ def power_decay( learning_rate, t, max_iter ):
                  
 class msom_parameters():             # hold arguments values here
     def __init__( self ):
+        self.mmap = False            # memory map to disk?
 
         self.shape = (4,4)           # nodal topology
 
@@ -79,26 +80,29 @@ class msom_parameters():             # hold arguments values here
 
         self.rate =  0.1             # initial learning rate (at the
                                      # iteration t we have
-                                     # learning_rate(t) = learning_rate / (1 + t/T)
+                                     # learning_rate(t) = learning_rate/(1+t/T)
                                      # where T is #num_iteration/2
        
-        self.init_weights = 'random' # initiate training with random or pca weights
+        self.init_weights = 'random' # initiate training with random
+                                     # or pca weights
                                      # use 'random' or pca'
 
         self.neighborhood_function = 'gaussian'
-                                     # function that weights the neighborhood of a
-                                     # position in the map.
-                                     # possible values: 'gaussian', 'mexican_hat',
+                                     # function that weights the neighborhood
+                                     # of a position in the map.
+                                     # possible values:'gaussian','mexican_hat',
                                      # 'bubble', 'triangle'
 
         self.topology = 'rectangular'
                                      # topology of the map.
-                                     # possible values: 'rectangular', 'hexagonal'
+                                     # possible values:'rectangular','hexagonal'
 
         self.activation_distance = 'euclidean'
                                      # distance used to activate the map.
                                      # possible values:
-                                     # 'euclidean', 'cosine', 'manhattan', 'chebyshev'
+                                     # 'euclidean', 'cosine', 'manhattan',
+                                     # 'chebyshev'
+                                     
         self.output_type = 'labels'  # image output type: 'labels' or 'quantize'
 
         # map file path prefix, a suffix is added 
@@ -137,7 +141,8 @@ class msom_parameters():             # hold arguments values here
         # .. is doable
         print( 'timestamp=               ', datetime.datetime.now().isoformat(),
                file=nfile )
-        print( 'shape=                   ', self.shape, file=nfile )
+        print( 'mmap=                    ', self.mmap, file=nfile )
+        print( 'shape=                   ', self.shape,file=nfile )
         print( 'sigma=                   ', self.sigma,file=nfile )
         print( 'nepochs=                 ', self.nepochs,file=nfile )
         print( 'rate=                    ', self.rate,file=nfile )
@@ -365,11 +370,11 @@ class msom( op_panel ):
     # train using epoch intervals
     def epoch_train( self, som, data, nepochs, rorder, show_progress ):
         
-        ndata = len( data )           # number of data points
-        nsamples = nepochs*ndata      # number of total sample points (iterations)
+        ndata = len( data )       # number of data points
+        nsamples = nepochs*ndata  # number of total sample points (iterations)
         
-        random_generator = None                                                              
-        if rorder == True:                                                                   
+        random_generator = None        
+        if rorder == True:            
             random_generator = som._random_generator
 
         # force som to consider the full data set in epoch steps.
@@ -379,7 +384,8 @@ class msom( op_panel ):
 
             print( '\nepoch =', epoch, file=sys.stderr, flush=True )
             iterations = _build_iteration_indexes( ndata, ndata, 
-                                                   show_progress, random_generator )
+                                                   show_progress,
+                                                   random_generator )
         
             for t, iteration in enumerate( iterations ):
                 som.update( data[iteration], som.winner( data[iteration] ),
@@ -392,12 +398,14 @@ class msom( op_panel ):
                 TE = som.topographic_error( data )
                 print( 'TE=', TE, file=sys.stderr, flush=True )
 
-        print( '\ncalculating quantization error...', file=sys.stderr, end='', flush=True )
+        print( '\ncalculating quantization error...', file=sys.stderr, end='',
+               flush=True )
         QE = som.quantization_error( data )
         print( 'done.', file=sys.stderr, flush=True )
         print( 'quantization error=', QE, file=sys.stderr,  flush=True )
 
-        print( '\ncalculating topographic error....', file=sys.stderr, end='', flush=True )
+        print( '\ncalculating topographic error....', file=sys.stderr,
+               end='', flush=True )
         TE = som.topographic_error( data ) 
         print( 'done.', file=sys.stderr, flush=True )
         print( 'topographic error=', TE, '\n', file=sys.stderr,  flush=True )
@@ -409,17 +417,21 @@ class msom( op_panel ):
         # flatten the input image; just a stream of pixels with n-bands
         shape = self.source.shape
         npix = shape[0]*shape[1]
-        pixels = np.reshape( self.source, (npix, shape[2]) )
+        self.source.resize((npix, shape[2])) # suppose to be in-place
+        #pixels = np.reshape( self.source, (npix, shape[2]) )
 
         # instantiate minisom
         som = self.init_SOM( shape[2] )
         
         # initialize the neuron weights
-        self.init_weights( som, pixels )
+        self.init_weights( som, self.source )
         
-        # cluster (train) the image data, return quantization and topographic errors
-        QE, TE = self.epoch_train( som, pixels, self.params.nepochs,
-                                   self.params.rorder, self.params.show_progress )
+        # cluster (train) the image data,
+        # return quantization and topographic errors
+        QE, TE = self.epoch_train( som, self.source,
+                                   self.params.nepochs,
+                                   self.params.rorder,
+                                   self.params.show_progress )
 
         # get trained neuron weights and write to file
         print( 'getting weights...', file=sys.stderr, end='', flush=True )
@@ -430,7 +442,7 @@ class msom( op_panel ):
         if self.params.activation_map == True:
             print( 'getting pixel class frequency...',
                    file=sys.stderr, end='', flush=True )
-            actmap = som.activation_response( pixels )
+            actmap = som.activation_response( self.source )
             print( 'done', file=sys.stderr, flush=True )
 
         # write parameter values and class weights to file
@@ -449,10 +461,12 @@ class msom( op_panel ):
         elif self.params.output_type == 'quantize' :
             
             print( 'quantization...', end='', file=sys.stderr, flush=True )
-            qnt = som.quantization( pixels )  # quantize each pixel of the image
+            qnt = som.quantization( self.source )  # quantize each pixel
 
             # place the quantized values into a new image
-            self.sink = np.zeros( self.source.shape, dtype=pixels.dtype )
+            self.sink = np.zeros( self.source.shape,
+                                  self.source,
+                                  dtype=self.source.dtype )
             for i, q in enumerate(qnt):      
                 self.sink[ np.unravel_index(i, dims=(shape[0],shape[1])) ] = q
             print( 'done', file=sys.stderr )
@@ -460,7 +474,7 @@ class msom( op_panel ):
         else:
             raise ValueError( "msom:run: unknown output type " +
                               self.params.output_type)
-        
+
     ####################################################################
     # gui section
     ####################################################################
@@ -657,7 +671,8 @@ class msom( op_panel ):
         panel = self.topology_panel()
         vv_sizer.Add( panel, 1, wx.EXPAND )
 
-        self.c_calc_epoch_errors = wx.CheckBox( self.p_client, 0, 'calculate epoch errors' )
+        self.c_calc_epoch_errors = wx.CheckBox( self.p_client, 0,
+                                                'calculate epoch errors' )
         vv_sizer.Add( self.c_calc_epoch_errors, 0, wx.ALL, 1 )
 
         h_sizer.Add( vv_sizer, 1, wx.EXPAND )
@@ -669,7 +684,8 @@ class msom( op_panel ):
 
         panel = self.decay_panel()
         vv_sizer.Add( panel, 0, wx.ALL, 1 )
-        self.c_activation_map = wx.CheckBox( self.p_client, 0, 'write activation map' )
+        self.c_activation_map = wx.CheckBox( self.p_client, 0,
+                                             'write activation map' )
         self.c_activation_map.Bind( wx.EVT_CHECKBOX, self.on_activation_map )
 
         vv_sizer.Add( self.c_activation_map, 0, wx.ALL, 1 )
@@ -681,13 +697,15 @@ class msom( op_panel ):
         v_sizer.Add( h_sizer )
 
         h_sizer = wx.BoxSizer( wx.HORIZONTAL )
-        prompt = wx.StaticText( self.p_client, -1, 'enter map pathname prefix:' )
+        prompt = wx.StaticText( self.p_client, -1,
+                                'enter map pathname prefix:' )
         h_sizer.Add( prompt, 0, wx.TOP, 5 )
         self.t_mapfile_prefix = wx.TextCtrl( self.p_client, -1, "" )
         self.t_mapfile_prefix.SetToolTip( 'enter prefix to save SOM map to' )
         h_sizer.Add( self.t_mapfile_prefix, 1, wx.EXPAND, 0 )
         
-        prompt = wx.StaticText( self.p_client, -1, 'enter activation map prefix:' )
+        prompt = wx.StaticText( self.p_client, -1,
+                                'enter activation map prefix:' )
         h_sizer.Add( prompt, 0, wx.TOP, 5 )
         self.t_actmapfile_prefix = wx.TextCtrl( self.p_client, -1, "" )
         self.t_actmapfile_prefix.SetToolTip( 'enter prefix to save activation map to' )
@@ -723,7 +741,8 @@ class msom( op_panel ):
         return p_output
 
     # decay functions
-    # possible values: 'asymptotic', 'constant', 'exponential', 'inverse', 'linear', 'power'
+    # possible values: 'asymptotic', 'constant', 'exponential',
+    # 'inverse', 'linear', 'power'
     def decay_panel( self ):
         p_decay = wx.Panel( self.p_client, -1, style=wx.SUNKEN_BORDER )
 
@@ -943,9 +962,10 @@ if __name__ == '__main__':
     temp.close()
 
     # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
+    oper.run()
 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send down stream    
+    # send down stream 
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 
     

@@ -3,6 +3,9 @@
 @author Scott L. Williams.
 @package POLI
 @section LICENSE
+
+#  Copyright (C) 2010-2024 Scott L. Williams.
+
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
@@ -22,7 +25,7 @@
 Manage panning and zooming the image
 '''
 
-pan_zoom_copyright = 'pan_zoom.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+pan_zoom_copyright = 'pan_zoom.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import sys

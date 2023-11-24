@@ -7,7 +7,7 @@
 @brief Reads a numpy pickle file.
 @section LICENSE
 # 
-#  Copyright (C) 2016-2022 Scott L. Williams.
+#  Copyright (C) 2016-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 # create a source operator from numpy pickle file
 
-npy_source_copyright = 'npy_source.py Copyright (c) 2016-2022 Scott L. Williams,released under GNU GPL V3.0'
+npy_source_copyright = 'npy_source.py Copyright (c) 2016-2024 Scott L. Williams,released under GNU GPL V3.0'
 
 import os
 import wx
@@ -65,6 +65,7 @@ class FileDrop( wx.FileDropTarget ):         # clean up text after drop
 class npy_source_parameters():
     def __init__( self ):
         self.filepath = ''             # input numpy file
+        self.mmap = False              # is source memory mapped?
 
 class npy_source( op_panel ):          # numpy source operator
 
@@ -80,9 +81,32 @@ class npy_source( op_panel ):          # numpy source operator
                self.params.filepath[:7] == 'http://' :
                 
                 filep = request( self.params.filepath )[0]
-                self.sink = np.load( filep, allow_pickle=True )
+                
+                # not sure how this works with http:// or file://
+                # TODO: test both on memory map
+                if self.params.mmap:
+                    print('\nnpy_source: cannot use memory mapping on http files',
+                           file=sys.stderr)
+                    sys.exit( 1 )
+                else:
+                    self.sink = np.load( filep, mmap=None, allow_pickle=False )
+                    print( '\nnpy_source: using ram memorg', file=sys.stderr) 
+
+            # regular filepath
             else:
-                self.sink = np.load( self.params.filepath, allow_pickle=True )
+                if self.params.mmap:
+ 
+                    self.sink = np.load( self.params.filepath,
+                                         mmap_mode='r',
+                                         allow_pickle=False )
+  
+                    print( '\nnpy_source: using memory mapping', file=sys.stderr) 
+
+                else:
+                    self.sink = np.load( self.params.filepath,
+                                         mmap_mode=None,
+                                         allow_pickle=False )
+                    print( 'npy_source: using ram memory', file=sys.stderr) 
 
         except OSError as e:
             print( e, file=sys.stderr )
@@ -145,10 +169,10 @@ class npy_source( op_panel ):          # numpy source operator
     # thread slightly different
     def apply_work( self ):
         self.run()          # run the operator
-        
-        #if self.sink == None:
-        if type( self.sink ) is not np.ndarray:
-             return
+
+        if not isinstance( self.sink, np.ndarray ):
+            print( 'image is NOT type numpy.ndarray', file=sys.stderr )
+            return
 
         # buffer tags are lost
         
@@ -206,7 +230,7 @@ class npy_source( op_panel ):          # numpy source operator
     # respond to file browse click
     def on_browse( self, event ):
         dlg = wx.FileDialog( self, 'Choose an image to read', 
-                             os.getcwd(), "", "*", wx.OPEN )
+                             os.getcwd(), "", "*", wx.FD_OPEN )
 
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
@@ -263,6 +287,8 @@ class npy_source( op_panel ):          # numpy source operator
 if __name__ == '__main__':      
     oper = instantiate()                  # source point for pipe
     oper.set_params( sys.argv[1:] )
-    oper.run()            
-    oper.sink.dump( sys.stdout.buffer )   # send downstream    
+    oper.run()
+
+    # send downstream  
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False )  
 

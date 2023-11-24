@@ -7,7 +7,7 @@
 @brief# Generate a cetin source image for POLI SOM operators.
 @LICENSE
 # 
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 
 # generate a cetin image operator for poli 
 
-cetin_copyright = 'cetin.py Copyright (c) 2010-2022 Scott L. Williams released under GNU GPL V3.0'
+cetin_copyright = 'cetin.py Copyright (c) 2010-2024 Scott L. Williams released under GNU GPL V3.0'
 
 import wx
 import sys
@@ -163,5 +163,7 @@ class cetin( op_panel ):
 if __name__ == '__main__':             
     oper = instantiate()                  # source point for pipe
     oper.set_params( sys.argv[1:] )
-    oper.run()            
-    oper.sink.dump( sys.stdout.buffer )   # send downstream    
+    oper.run()
+
+    # send downstream    
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 

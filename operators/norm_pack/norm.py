@@ -6,7 +6,7 @@
 @brief Normalize all bands to either -1 to 1 or 0 to 1.
 @LICENSE
 #
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 # Optionally report scaling coefficients to file 
 # Optionally consider interlaced buffers for scaling
 
-norm_copyright = 'norm.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+norm_copyright = 'norm.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import sys
@@ -382,9 +382,10 @@ if __name__ == '__main__':
     temp.write( sys.stdin.buffer.read() )
     temp.close()
 
-    # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    # load the data
+    oper.source = np.load( temp_name )
     os.remove( temp_name )
+    oper.run()
 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send downstream    
+    # send downstream 
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 

@@ -3,6 +3,9 @@
 @author Scott L. Williams
 @package POLI
 @section LICENSE
+
+#  Copyright (C) 2010-2024 Scott L. Williams.
+
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
@@ -21,7 +24,7 @@
 Logger to text ctrl panel and file
 '''
 
-logger_copyright = 'logger.py Copyright (c) 2010-2022 Scott L. Williams released under GNU GPL V3.0'
+logger_copyright = 'logger.py Copyright (c) 2010-2024 Scott L. Williams released under GNU GPL V3.0'
 
 import wx
 import sys
