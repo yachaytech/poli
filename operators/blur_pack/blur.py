@@ -7,7 +7,7 @@
 @brief Gaussian or flat blur operator for POLI.
 @LICENSE
 # 
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 '''
-blur_copyright = 'blur.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+blur_copyright = 'blur.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import sys
@@ -194,9 +194,10 @@ if __name__ == '__main__':
     temp.write( sys.stdin.buffer.read() )
     temp.close()
 
-    # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    # load the data
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
- 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send downstream    
+    oper.run()
+
+    # send downstream
+    np.save( sys.stdout.buffer, oper.sink,  allow_pickle=False )

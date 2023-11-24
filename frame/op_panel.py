@@ -3,6 +3,9 @@
 @author Scott L. Williams.
 @package POLI
 @section LICENSE 
+
+#  Copyright (C) 2010-2024 Scott L. Williams.
+
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
@@ -20,7 +23,7 @@
 @section DESCRIPTION
 Super (base) class for POLI operators. This is an  abstract class, don't call directly. 
 '''
-op_panel_copyright = 'op_panel.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+op_panel_copyright = 'op_panel.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import os
 import wx
@@ -35,15 +38,10 @@ from threads import apply_thread
 from threads import monitor_thread
 from threads import EVT_PROCESS_DONE_EVENT
 
-# Reminder: numpy array dimensions are typically indexed Z,Y,X.
-#           this is a natural approach since Z says how many sets (images)
-#           of rows (Y)  and colums (X,  but for bmp,jpg, etc. the convention
-#           is Y,X,Z. numpy arrays can be used as Y,X,Z but is confusing for
-#           numpy users as they expect Z,Y,X. To add further confusion screen
-#           cordinates are X,Y with top left corner as origin (0,0),and the
-#           program "ncview" uses the bottom left corner as the origin.
-#           POLI uses numpy arrays with Y,X,Z index convention only because
-#           it is more congruent with popular image formats. 
+# Reminder: numpy array dimensions are typically indexed Y,X,Z
+#           To add further confusion screen, the top left corner is the
+#           origin (0,0) while the program "ncview" uses the bottom left
+#           corner as the origin.
 
 # coastwatch hdf satellite attributes
 class attr():   

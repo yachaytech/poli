@@ -7,7 +7,7 @@
 @brief Convert raw variables from WRF output to actual ETo variable and average.
 @LICENSE
 #
-#  Copyright (C) 2016-2022 Scott L. Williams.
+#  Copyright (C) 2016-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@
 # example wrf_source input string for for averaging 10:00-11:00hrs :
 # TSK:10,EMISS:10,SWDOWN:10,GLW:10,GRDFLX:10,T2:10,PSFC:10,Q2:10,U10:10,V10:10,TSK:11,EMISS:11,SWDOWN:11,GLW:11,GRDFLX:11,T2:11,PSFC:11,Q2:11,U10:11,V10:11
    
-prep_eto_copyright = 'prep_eto.py Copyright (c) 2016-2022 Scott L. Williams, released under GNU GPL V3.0'
+prep_eto_copyright = 'prep_eto.py Copyright (c) 2016-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import sys
@@ -417,8 +417,9 @@ if __name__ == '__main__':
     temp.close()
 
     # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
- 
-    oper.run()                  
-    oper.sink.dump( sys.stdout.buffer )          # send downstream    
+    oper.run()
+
+    # send downstream 
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 

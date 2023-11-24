@@ -4,6 +4,9 @@
 @pakage POLI
 @brief top wxPanel for Python On Line Imaging (POLI)
 @section LICENSE
+
+#  Copyright (C) 2010-2024 Scott L. Williams.
+
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
@@ -22,7 +25,7 @@
 @section DESCRIPTION
 Top level panel for POLI, a graphical interface for data processing usng NumPy.
 '''
-bench_top_copyright = 'benchtop.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+bench_top_copyright = 'benchtop.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 #  top panel for all poli components
 import os

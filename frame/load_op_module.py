@@ -3,6 +3,9 @@
 @author Scott L. Williams.
 @package POLI
 @section LICENSE
+
+#  Copyright (C) 2020-2024 Scott L. Williams.
+
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 3 of the License, or
@@ -24,7 +27,7 @@ Keystone module for POLI; dynamically loads an operator module from a dirctory o
 # TODO: make url compatible
 # TODO: more efficient way?
 
-load_op_module_copyright = 'load_op_module.py Copyright (c) 2010-2022 Scott L. Williams released under GNU GPL V3.0'
+load_op_module_copyright = 'load_op_module.py Copyright (c) 2010-2024 Scott L. Williams released under GNU GPL V3.0'
 
 import os
 import sys

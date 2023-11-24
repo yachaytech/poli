@@ -7,7 +7,7 @@
 @brief A netCDF wrf data source POLI operator.
 @LICENSE
 #
-#  Copyright (C) 2016-2022 Scott L. Williams.
+#  Copyright (C) 2016-2024 Scott L. Williams.
 # 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@
 # XLAT and XLONG are automatically read into nav buffers
 # NOTE: 4-D data not implemented, eg. T
 
-wrf_source_copyright = 'wrf_source.py Copyright (c) 2016-2022 Scott L. Williams, released under GNU GPL V3.0'
+wrf_source_copyright = 'wrf_source.py Copyright (c) 2016-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import wx
 import os
@@ -425,6 +425,8 @@ class wrf_source( op_panel ):          # image source operator
 if __name__ == '__main__':      
     oper = instantiate()                  # source point for pipe
     oper.set_params( sys.argv[1:] )
-    oper.run()            
-    oper.sink.dump( sys.stdout.buffer )   # send downstream    
+    oper.run()
+
+    # send downstream
+    np.save( sys.stdout.buffer, oper.sink, allow_pickle=False ) 
 

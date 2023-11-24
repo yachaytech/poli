@@ -6,7 +6,7 @@
 @brief Writes a numpy data array into an image file.
 @LICENSE
 #
-#  Copyright (C) 2010-2022 Scott L. Williams.
+#  Copyright (C) 2010-2024 Scott L. Williams.
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@
 # poli sink operator that renders data array into an image format
 # TODO: make an op_panel version
 
-render_copyright = 'render.py Copyright (c) 2010-2022 Scott L. Williams, released under GNU GPL V3.0'
+render_copyright = 'render.py Copyright (c) 2010-2024 Scott L. Williams, released under GNU GPL V3.0'
 
 import sys
 import getopt
@@ -272,7 +272,7 @@ if __name__ == '__main__':
     temp.write( sys.stdin.buffer.read() )
     temp.close()
 
-    # load the pickled data
-    oper.source = np.load( temp_name, allow_pickle=True,fix_imports=False)
+    # load the data
+    oper.source = np.load( temp_name, allow_pickle=False )
     os.remove( temp_name )
     oper.run()                  
